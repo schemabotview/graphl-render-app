@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import StageFrame from './frame/StageFrame'
 import Home from './frame/Home'
 import { catalog } from './content/catalog'
-import { fetchManifest, fetchContentText } from './content/client'
+import { fetchManifest, fetchContentText, contentUrl } from './content/client'
 import { parseSlide, type Slide } from './content/slide'
 import { slugOf } from './content/nav'
 import type { Manifest } from './content/types'
 import { getScene } from './scenes'
+import { useNarration } from './hooks/useNarration'
 import { parseRoute, writeRoute, type Route } from './router'
 
 // Route-driven shell. The hash `#/<concept>/<module>/<section>` selects what plays;
@@ -49,30 +50,52 @@ export default function App() {
 
   // Only trust the manifest once it matches the concept the route currently names.
   const activeManifest = manifest && manifest.id === concept.id ? manifest.data : null
-  const moduleSpec = activeManifest
-    ? (activeManifest.modules.find((m) => m.id === route.module) ?? activeManifest.modules[0])
-    : undefined
+  const modules = activeManifest?.modules ?? []
+  const moduleIndex = Math.max(0, modules.findIndex((m) => m.id === route.module))
+  const moduleSpec = activeManifest ? (modules[moduleIndex] ?? modules[0]) : undefined
   const sectionIndex = moduleSpec
     ? Math.max(0, moduleSpec.sections.findIndex((s) => slugOf(s) === route.section))
     : 0
   const section = moduleSpec?.sections[sectionIndex]
+  const audioUrl = section?.audio ? contentUrl(concept.contentBaseUrl, section.audio) : undefined
 
   const go = (next: Route) => {
     setRoute(next)
     writeRoute(next)
   }
-  const goToIndex = (i: number) => {
+
+  // Step ±1 across the concept as one continuous lesson: past a module's last section
+  // roll into the next module's first section (and symmetrically for ←). Stops at the
+  // very first/last section of the concept.
+  const step = (delta: number) => {
     if (!moduleSpec) return
-    const clamped = Math.max(0, Math.min(i, moduleSpec.sections.length - 1))
-    go({ concept: concept.id, module: moduleSpec.id, section: slugOf(moduleSpec.sections[clamped]) })
+    const si = sectionIndex + delta
+    if (si >= 0 && si < moduleSpec.sections.length) {
+      go({ concept: concept.id, module: moduleSpec.id, section: slugOf(moduleSpec.sections[si]) })
+    } else if (si < 0 && moduleIndex > 0) {
+      const prev = modules[moduleIndex - 1]
+      go({ concept: concept.id, module: prev.id, section: slugOf(prev.sections[prev.sections.length - 1]) })
+    } else if (si >= moduleSpec.sections.length && moduleIndex < modules.length - 1) {
+      const nextMod = modules[moduleIndex + 1]
+      go({ concept: concept.id, module: nextMod.id, section: slugOf(nextMod.sections[0]) })
+    }
   }
 
-  // Keyboard transport: ← → page sections, Esc returns to the index.
+  // Play the current section's narration; SPACE toggles it. On clip-end auto-advance one
+  // step — which carries across module boundaries into the next module.
+  const { toggle } = useNarration(audioUrl, () => step(1))
+
+  // Keyboard transport: ← → page sections (across modules), SPACE plays/pauses narration,
+  // Esc returns to the index.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') goToIndex(sectionIndex + 1)
-      else if (e.key === 'ArrowLeft') goToIndex(sectionIndex - 1)
+      if (e.key === 'ArrowRight') step(1)
+      else if (e.key === 'ArrowLeft') step(-1)
       else if (e.key === 'Escape') go({ concept: '' })
+      else if (e.key === ' ') {
+        e.preventDefault()
+        toggle()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

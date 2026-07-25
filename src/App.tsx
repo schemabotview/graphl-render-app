@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import StageFrame, { type Opener } from './frame/StageFrame'
 import Home from './frame/Home'
 import { catalog } from './content/catalog'
@@ -25,6 +25,12 @@ export default function App() {
   const [slide, setSlide] = useState<Slide | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Capture mode (`?capture=1`): the Puppeteer recorder drives the app. It holds a dark
+  // pre-roll on a blank hash (so it can start rolling before deep-linking a section), never
+  // shows Home, and relies on the `__captureReady` handshake + `capture-opener-start` event
+  // below to sync each recording. See ../graphl-capture-app.
+  const capture = useMemo(() => new URLSearchParams(location.search).has('capture'), [])
+
   // Follow external hash changes (back/forward, a pasted deep link). Our own paging uses
   // replaceState, which does NOT fire hashchange — so this never loops on self-navigation.
   useEffect(() => {
@@ -33,7 +39,11 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  const showHome = !route.module
+  // Preview shows Home on a blank/module-less hash; capture never does (dark pre-roll). We
+  // resolve a section to play once the route names one (a section in capture, a module in
+  // preview).
+  const showHome = !capture && !route.module
+  const shouldPlay = capture ? !!route.section : !!route.module
 
   // Fetch the concept's manifest when a section route needs it.
   useEffect(() => {
@@ -52,10 +62,10 @@ export default function App() {
   const activeManifest = manifest && manifest.id === concept.id ? manifest.data : null
   const modules = activeManifest?.modules ?? []
   const moduleIndex = Math.max(0, modules.findIndex((m) => m.id === route.module))
-  // Only resolve a section when a module route names one. On Home (no module) we leave
-  // this undefined so nothing falls back to module 01 §01 — which would make its clip the
+  // Only resolve a section when we should play one. On Home (no module) we leave this
+  // undefined so nothing falls back to module 01 §01 — which would make its clip the
   // "default" audio and let it play on the index.
-  const moduleSpec = !showHome && activeManifest ? (modules[moduleIndex] ?? modules[0]) : undefined
+  const moduleSpec = shouldPlay && activeManifest ? (modules[moduleIndex] ?? modules[0]) : undefined
   const sectionIndex = moduleSpec
     ? Math.max(0, moduleSpec.sections.findIndex((s) => slugOf(s) === route.section))
     : 0
@@ -122,14 +132,24 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleSpec, section])
 
-  // Fetch the current section's slide. We don't blank the old slide first — that would
-  // flash a "Loading" between sections; the new slide swaps in when it arrives.
+  // Fetch the current section's slide. In PREVIEW we don't blank the old slide first — that
+  // would flash a "Loading" between sections. In CAPTURE we blank it, so `__captureReady`
+  // (below) is a reliable per-section "painted" signal and the scene remounts fresh so its
+  // overview→focus choreography starts exactly when recording begins.
   useEffect(() => {
     if (!section) return
+    if (capture) setSlide(null)
     fetchContentText(concept.contentBaseUrl, section.slide)
       .then((t) => setSlide(parseSlide(t)))
       .catch((e) => setError(String(e)))
-  }, [section, concept.contentBaseUrl])
+  }, [section, concept.contentBaseUrl, capture])
+
+  // Capture handshake: reflect whether the frame is actually painted (section + slide
+  // loaded). The recorder blanks it false as it navigates, then waits for true before it
+  // starts rolling — so frame 0 is the painted section, not a "Loading" gap.
+  useEffect(() => {
+    ;(window as unknown as { __captureReady?: boolean }).__captureReady = !!(capture && section && slide)
+  }, [capture, section, slide])
 
   // Play the module opener once PER MODULE, when landing on that module's first section.
   // Keyed by concept+module (not a once-ever flag) so re-entering a module replays with
@@ -152,6 +172,8 @@ export default function App() {
 
   if (showHome) return <Home onOpen={go} />
   if (error) return <Centered>Failed to load content — {error}</Centered>
+  // Dark pre-roll in capture mode before the recorder deep-links a section.
+  if (capture && !route.section) return <div className="h-full w-full bg-scene" />
   if (!section || !slide) return <Centered>Loading content…</Centered>
 
   return (

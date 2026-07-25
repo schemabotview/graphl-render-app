@@ -30,13 +30,24 @@ export default function ModuleOpener({
 }) {
   const [gone, setGone] = useState(false)
   useEffect(() => {
-    const t1 = setTimeout(() => setGone(true), OPENER_HOLD_MS)
-    const t2 = setTimeout(() => onDone?.(), OPENER_HOLD_MS + 800) // after the fade
+    let t1: ReturnType<typeof setTimeout>
+    let t2: ReturnType<typeof setTimeout>
+    const start = () => {
+      t1 = setTimeout(() => setGone(true), OPENER_HOLD_MS)
+      t2 = setTimeout(() => onDone?.(), OPENER_HOLD_MS + 800) // after the fade
+    }
+    // Capture mode: the recorder fires `capture-opener-start` the instant it begins rolling,
+    // so the card plays from frame 0 in sync with the audio lead. Preview auto-starts.
+    const capture = new URLSearchParams(location.search).has('capture')
+    if (capture) window.addEventListener('capture-opener-start', start, { once: true })
+    else start()
     return () => {
       clearTimeout(t1)
       clearTimeout(t2)
+      window.removeEventListener('capture-opener-start', start)
     }
-  }, [onDone])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div

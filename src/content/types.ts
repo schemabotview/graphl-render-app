@@ -14,8 +14,8 @@ export interface SectionSpec {
   notebook?: string
   /** Path to the `.slide` file — the right-pane bullets. */
   slide: string
-  /** Path to the narration `.wav`. */
-  audio?: string
+  // Narration is NOT wired here — the app derives it by convention (`audio/<slug>.wav`),
+  // so the manifest carries no audio path. See App.tsx.
   /** Scene id, looked up in the app's scene registry (src/scenes). */
   scene?: string
   /** Scene node ids to spotlight (the rest dim). */

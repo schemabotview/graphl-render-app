@@ -52,12 +52,20 @@ export default function App() {
   const activeManifest = manifest && manifest.id === concept.id ? manifest.data : null
   const modules = activeManifest?.modules ?? []
   const moduleIndex = Math.max(0, modules.findIndex((m) => m.id === route.module))
-  const moduleSpec = activeManifest ? (modules[moduleIndex] ?? modules[0]) : undefined
+  // Only resolve a section when a module route names one. On Home (no module) we leave
+  // this undefined so nothing falls back to module 01 §01 — which would make its clip the
+  // "default" audio and let it play on the index.
+  const moduleSpec = !showHome && activeManifest ? (modules[moduleIndex] ?? modules[0]) : undefined
   const sectionIndex = moduleSpec
     ? Math.max(0, moduleSpec.sections.findIndex((s) => slugOf(s) === route.section))
     : 0
   const section = moduleSpec?.sections[sectionIndex]
-  const audioUrl = section?.audio ? contentUrl(concept.contentBaseUrl, section.audio) : undefined
+  // Narration path is convention, not manifest data: every clip is `audio/<slug>.wav`
+  // (the slug is the slide stem). One rule for every module; a truly absent wav 404s and
+  // useNarration stays silent.
+  const audioUrl = section
+    ? contentUrl(concept.contentBaseUrl, `audio/${slugOf(section)}.wav`)
+    : undefined
 
   const go = (next: Route) => {
     setRoute(next)
@@ -83,7 +91,7 @@ export default function App() {
 
   // Play the current section's narration; SPACE toggles it. On clip-end auto-advance one
   // step — which carries across module boundaries into the next module.
-  const { toggle } = useNarration(audioUrl, () => step(1))
+  const { toggle, stop } = useNarration(audioUrl, () => step(1))
 
   // Keyboard transport: ← → page sections (across modules), SPACE plays/pauses narration,
   // Esc returns to the index.
@@ -91,8 +99,10 @@ export default function App() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') step(1)
       else if (e.key === 'ArrowLeft') step(-1)
-      else if (e.key === 'Escape') go({ concept: '' })
-      else if (e.key === ' ') {
+      else if (e.key === 'Escape') {
+        stop() // leaving the player — silence the narration
+        go({ concept: '' })
+      } else if (e.key === ' ') {
         e.preventDefault()
         toggle()
       }

@@ -1,0 +1,33 @@
+// Concept registry (app-owned): concept id → where its content repo lives. The app
+// fetches manifest / slides / audio from a concept's contentBaseUrl at runtime; the
+// app itself bundles no content. Scenes stay app-owned (src/scenes), referenced by id.
+
+export interface Concept {
+  id: string
+  label: string
+  /** Base URL of the concept's content repo (raw GitHub), no trailing slash. */
+  contentBaseUrl: string
+}
+
+const RAW = 'https://raw.githubusercontent.com'
+
+// Dev override: point every concept at a locally-served content repo (CORS-enabled)
+// to review unpushed content. Set VITE_CONTENT_BASE_URL when starting `vite`.
+const OVERRIDE = import.meta.env.VITE_CONTENT_BASE_URL as string | undefined
+
+// Forward-looking: these `-ct` content repos don't exist yet. Until they do (or a local
+// override is set), fetches will 404 — expected for the current build phase.
+export const catalog: Record<string, Concept> = {
+  'data-modeling': {
+    id: 'data-modeling',
+    label: 'Data Modeling',
+    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/data-modeling-ct/main`,
+  },
+  'apache-spark': {
+    id: 'apache-spark',
+    label: 'Apache Spark',
+    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/apache-spark-ct/main`,
+  },
+}
+
+export const getConcept = (id: string): Concept | undefined => catalog[id]

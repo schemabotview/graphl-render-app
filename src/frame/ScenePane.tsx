@@ -1,13 +1,26 @@
 import { SceneViewer } from '../engine/SceneViewer'
-import { getScene } from '../scenes'
+import type { SceneSpec } from '../engine/types'
 
 /**
- * The left pane — renders a scene through the engine. For the scaffold it shows the
- * `sample` star-schema scene with the fact table focused, exercising the grid resolver,
- * styled nodes, floating edges, and the camera/highlight choreography. Later slices
- * pick the scene + focus/highlight per section from the manifest.
+ * The left pane — renders a scene through the engine, with the section's focus/highlight.
+ * When a section names a scene the app doesn't have in its registry yet, we show a calm
+ * placeholder instead of an empty canvas (scenes are authored in a later slice).
  */
-export default function ScenePane() {
-  const scene = getScene('sample')!
-  return <SceneViewer scene={scene} focus="fact-sales" highlight={['fact-sales']} />
+export default function ScenePane({
+  scene,
+  highlight,
+  focus,
+}: {
+  scene?: SceneSpec
+  highlight?: string[]
+  focus?: string | string[]
+}) {
+  if (!scene) {
+    return (
+      <div className="grid h-full w-full place-items-center bg-scene text-sm text-role-gray">
+        Scene coming soon
+      </div>
+    )
+  }
+  return <SceneViewer scene={scene} highlight={highlight} focus={focus} />
 }

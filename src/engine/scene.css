@@ -1,0 +1,189 @@
+/* Calm filled blocks (see CLAUDE.md → Visual design). Color lives in a muted FILL
+   mixed into a dark base — no glow, no neon. */
+
+.scene-flow {
+  width: 100%;
+  height: 100%;
+}
+
+/* React Flow chrome resets: we draw our own nodes, no default card/pane bg. */
+.scene-flow .react-flow,
+.scene-flow .react-flow__pane {
+  background: transparent;
+}
+.scene-flow .react-flow__node {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: inherit;
+  color: inherit;
+  cursor: default;
+}
+/* Lift edges above the filled nodes/containers so the always-on connections aren't
+   hidden behind a node or container fill. */
+.scene-flow .react-flow__edges {
+  z-index: 3;
+}
+.scene-handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Node base ------------------------------------------------------------- */
+.scene-node {
+  --base: #1f1f1f; /* mix seed — a touch lighter than the scene bg */
+  --fill: color-mix(in srgb, var(--node-color) 30%, var(--base));
+  --line: color-mix(in srgb, var(--node-color) 45%, var(--base));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 4px; /* crisp, near-square corners */
+  line-height: 1.2;
+  transition: opacity 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.scene-node__icon {
+  color: var(--node-color);
+  margin-bottom: 5px;
+  flex-shrink: 0;
+}
+.scene-node__label {
+  font-weight: 700;
+  color: #f4f6fb;
+  padding: 0 6px;
+  max-width: 100%;
+  /* Wrap only at spaces (never mid-word) — symbol labels get a clean 2 lines; a long
+     single word is sized to fit by fitLabelPx, so it won't need a mid-word break. */
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+.scene-node__sub {
+  margin-top: 4px;
+  font-size: 0.72em;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--node-color) 60%, #ffffff 40%);
+}
+
+/* --- symbol: a filled role-colored block ---------------------------------- */
+.scene-node--symbol {
+  background: var(--fill);
+  border: 1px solid var(--line);
+}
+
+/* icon-left / label-right variant: for short-but-wide symbol boxes in tight stacks
+   where icon-over-label would overflow the box height. Spends width, not height. */
+.scene-node--iconh {
+  flex-direction: row;
+}
+.scene-node--iconh .scene-node__icon,
+.scene-node--iconh .scene-node__mono {
+  margin-bottom: 0;
+  margin-right: 5px;
+}
+
+/* monogram: a service-tile look — a role-colored rounded square with the label's
+   first letters, on a TRANSPARENT body (no fill/border), with the label beside/below. */
+.scene-node--mono {
+  background: none;
+  border: none;
+}
+.scene-node__mono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background: var(--node-color);
+  color: #12151b;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.scene-node--mono .scene-node__label {
+  /* Neutral bright label — the color lives only on the badge (the symbol logo), so
+     labels read uniformly instead of as a rainbow of role tints. */
+  color: #f1f2f4;
+  font-weight: 300;
+}
+.scene-node--mono.scene-node--lit .scene-node__label {
+  color: #ffffff;
+}
+
+/* --- term: a filled chip whose text IS the concept ------------------------ */
+.scene-node--term {
+  background: color-mix(in srgb, var(--node-color) 34%, var(--base));
+  border: 1px solid var(--line);
+}
+.scene-node--term .scene-node__label {
+  /* Inherit the app font (Inter) — sans, not mono. Bright label — the role-color tint
+     lives on the sub-caption, not the label. NORMAL weight on ONE horizontal line; if a
+     label still overflows, clip it cleanly — NO ellipsis dots. */
+  font-weight: 400;
+  color: #f1f2f4;
+  padding: 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* --- container: subtle titled panel; title rides the top-left border ------- */
+.scene-node--container {
+  background: color-mix(in srgb, var(--node-color) 12%, var(--base));
+  border: 1px solid color-mix(in srgb, var(--node-color) 28%, var(--base));
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-radius: 5px;
+}
+.scene-node--container .scene-node__title {
+  position: absolute;
+  top: 0;
+  left: 7px;
+  transform: translateY(-50%);
+  padding: 0 4px;
+  background: color-mix(in srgb, var(--node-color) 12%, var(--base)); /* mask the border, match the panel */
+  color: color-mix(in srgb, var(--node-color) 75%, #cfd4dc);
+  font-weight: 600; /* semibold, not heavy — narrower, so more of the title fits */
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: calc(100% - 12px);
+  overflow: hidden;
+  text-overflow: clip; /* NO ellipsis dots — clip cleanly if still too long */
+}
+
+/* --- focus: the section's subsystem stays in its OWN role colors and brightens
+   a step; everything else dims back. NOT recolored to amber — the attention cue is
+   the dim/full contrast, so the palette is preserved. */
+.scene-node--lit {
+  border-color: color-mix(in srgb, var(--node-color) 62%, var(--base));
+}
+.scene-node--lit.scene-node--term {
+  background: color-mix(in srgb, var(--node-color) 44%, var(--base));
+}
+.scene-node--lit.scene-node--symbol {
+  background: color-mix(in srgb, var(--node-color) 40%, var(--base));
+}
+.scene-node--dimmed {
+  opacity: 0.55; /* gentle dim — non-focused context stays readable, focus still pops */
+}
+
+/* --- active edge label ---------------------------------------------------- */
+.scene-edge-label {
+  position: absolute;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #1c1f26;
+  border: 1px solid #3a3f4b;
+  color: #e6e8ee;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}

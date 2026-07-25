@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/*
+ * FIXED semantic palette (see CLAUDE.md → Visual design). A color always means one
+ * role. Declared as Tailwind v4 theme tokens so they generate utilities
+ * (bg-scene, text-role-blue, border-role-green, …) and stay in ONE place.
+ */
+@theme {
+  --color-scene: #232428; /* canvas + app bg — lighter than the #1f1f1f nodes so they read */
+  --color-code: #0d1117; /* github-dark — code surfaces */
+  --color-node-base: #14161c; /* dark base that role hues mix into */
+
+  --color-role-blue: #5b8cff;
+  --color-role-green: #37d39a;
+  --color-role-orange: #ff7a59;
+  --color-role-purple: #b98bff;
+  --color-role-teal: #3fd0d6;
+  --color-role-red: #ff5d6c;
+  --color-role-gray: #9aa3b2;
+  --color-role-yellow: #d9b84a;
+
+  --color-edge: #5b6270; /* plain gray edge */
+
+  /* Inter (self-hosted, so it renders in the headless capture too) — the app font. */
+  --default-font-family: "Inter Variable", system-ui, -apple-system, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #0a0b0d; /* the letterbox surround behind the 16:9 stage */
+  color: #e6e8ee;
+  font-family: "Inter Variable", system-ui, -apple-system, sans-serif;
+  overflow: hidden; /* the stage is a fixed frame — no page scroll */
+}

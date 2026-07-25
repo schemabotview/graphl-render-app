@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import StageFrame from './frame/StageFrame'
+import { useEffect, useRef, useState } from 'react'
+import StageFrame, { type Opener } from './frame/StageFrame'
 import Home from './frame/Home'
 import { catalog } from './content/catalog'
 import { fetchManifest, fetchContentText, contentUrl } from './content/client'
@@ -131,6 +131,25 @@ export default function App() {
       .catch((e) => setError(String(e)))
   }, [section, concept.contentBaseUrl])
 
+  // Play the module opener once PER MODULE, when landing on that module's first section.
+  // Keyed by concept+module (not a once-ever flag) so re-entering a module replays with
+  // the current module's title. Paging within a module never re-triggers it.
+  const openedModuleRef = useRef<string | null>(null)
+  const [opener, setOpener] = useState<Opener | null>(null)
+  useEffect(() => {
+    if (!moduleSpec || !section || sectionIndex !== 0) return
+    const key = `${concept.id}/${moduleSpec.id}`
+    if (openedModuleRef.current === key) return
+    openedModuleRef.current = key
+    setOpener({
+      concept: concept.label,
+      moduleNo: moduleSpec.id.match(/^\d+/)?.[0] ?? '',
+      title: moduleSpec.title,
+      accent: concept.accent,
+      accentDeep: concept.accentDeep,
+    })
+  }, [moduleSpec, section, sectionIndex, concept.label, concept.id, concept.accent, concept.accentDeep])
+
   if (showHome) return <Home onOpen={go} />
   if (error) return <Centered>Failed to load content — {error}</Centered>
   if (!section || !slide) return <Centered>Loading content…</Centered>
@@ -139,6 +158,11 @@ export default function App() {
     <StageFrame
       scene={section.scene ? getScene(section.scene) : undefined}
       slide={slide}
+      bannerTitle={slide.title}
+      bannerKicker={concept.label}
+      accent={concept.accent}
+      opener={opener}
+      onOpenerDone={() => setOpener(null)}
       highlight={section.highlight}
       focus={section.focus}
     />

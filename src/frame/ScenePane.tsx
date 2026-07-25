@@ -1,26 +1,24 @@
 import { SceneViewer } from '../engine/SceneViewer'
 import type { SceneSpec } from '../engine/types'
 
-/**
- * The left pane — renders a scene through the engine, with the section's focus/highlight.
- * When a section names a scene the app doesn't have in its registry yet, we show a calm
- * placeholder instead of an empty canvas (scenes are authored in a later slice).
- */
-export default function ScenePane({
-  scene,
-  highlight,
-  focus,
-}: {
+// Left pane — the visual scene (React Flow node-graph). The scene comes from the app
+// registry (by the section's manifest `scene` id); highlight/focus drive spotlight +
+// camera per section. A section whose scene isn't registered yet shows a placeholder.
+interface ScenePaneProps {
+  width: number
   scene?: SceneSpec
   highlight?: string[]
   focus?: string | string[]
-}) {
-  if (!scene) {
-    return (
-      <div className="grid h-full w-full place-items-center bg-scene text-sm text-role-gray">
-        Scene coming soon
-      </div>
-    )
-  }
-  return <SceneViewer scene={scene} highlight={highlight} focus={focus} />
+}
+
+export default function ScenePane({ width, scene, highlight, focus }: ScenePaneProps) {
+  return (
+    <section className="relative h-full shrink-0 bg-scene" style={{ width }}>
+      {scene ? (
+        <SceneViewer scene={scene} highlight={highlight} focus={focus} />
+      ) : (
+        <div className="grid h-full place-items-center text-role-gray/50">Scene coming soon</div>
+      )}
+    </section>
+  )
 }

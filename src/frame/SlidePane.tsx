@@ -117,15 +117,18 @@ const components: Components = {
     ),
 }
 
-export default function SlidePane({ slide }: { slide: Slide }) {
+export default function SlidePane({ width, slide }: { width: number; slide: Slide }) {
   return (
-    <div className="flex h-full flex-col justify-center px-[8%] py-[7%]">
+    <section
+      className="flex h-full shrink-0 flex-col justify-center border-l border-white/10 bg-scene px-16 py-14"
+      style={{ width }}
+    >
       <h1 className="text-[40px] font-bold leading-tight text-white">{slide.title}</h1>
       <div className="mt-8">
         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={components}>
           {slide.body}
         </ReactMarkdown>
       </div>
-    </div>
+    </section>
   )
 }

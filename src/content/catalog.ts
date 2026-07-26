@@ -22,10 +22,10 @@ const OVERRIDE = import.meta.env.VITE_CONTENT_BASE_URL as string | undefined
 // Forward-looking: these `-ct` content repos don't exist yet. Until they do (or a local
 // override is set), fetches will 404 — expected for the current build phase.
 export const catalog: Record<string, Concept> = {
-  'data-modeling': {
-    id: 'data-modeling',
-    label: 'Data Modeling',
-    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/data-modeling-ct/main`,
+  'data-warehousing': {
+    id: 'data-warehousing',
+    label: 'Data Warehousing',
+    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/data-warehousing-ct/main`,
     accent: '#5b8cff', // blue
     accentDeep: '#101a2e',
   },

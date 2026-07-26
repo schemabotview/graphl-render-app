@@ -83,7 +83,7 @@ export default function StageFrame({
             highlight={opener ? undefined : highlight}
             focus={opener ? undefined : focus}
           />
-          <SlidePane width={SLIDE_W} slide={slide} />
+          <SlidePane width={SLIDE_W} slide={slide} accent={accent} />
           {!opener && <SectionBanner title={bannerTitle} kicker={bannerKicker} accent={accent} />}
           {opener && (
             <ModuleOpener

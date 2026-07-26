@@ -13,9 +13,10 @@ const nodeTypes = { scene: SceneNode }
 const edgeTypes = { flow: FlowEdge }
 
 // The camera lives INSIDE <ReactFlow> so `useReactFlow()` gives a live instance. It
-// frames the `focus` union box, or (no focus) the union of ALL node boxes. Both come
-// from the grid resolver, so we call `fitBounds` on our own rects — no dependence on
-// React Flow measuring nodes. The Ken-Burns pan paging drives per section.
+// always frames the union of ALL node boxes — the WHOLE scene stays visible the entire
+// section, so the viewer never loses the broader picture. Focus is expressed purely by
+// brighten-focused + dim-the-rest (see scene.css), NOT by a camera zoom. Boxes come from
+// the grid resolver, so we fitBounds our own rect — no dependence on RF measuring nodes.
 function unionBox(bs: Box[]): { x: number; y: number; width: number; height: number } | null {
   if (!bs.length) return null
   const minX = Math.min(...bs.map((b) => b.x))
@@ -25,19 +26,15 @@ function unionBox(bs: Box[]): { x: number; y: number; width: number; height: num
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
 }
 
-function Camera({ boxes, focusIds }: { boxes: Record<string, Box>; focusIds: string[] }) {
+function Camera({ boxes }: { boxes: Record<string, Box> }) {
   const rf = useReactFlow()
-  const key = focusIds.join(',')
 
   useEffect(() => {
-    const framed = focusIds.map((id) => boxes[id]).filter(Boolean) as Box[]
-    const rect = unionBox(framed.length ? framed : Object.values(boxes))
+    const rect = unionBox(Object.values(boxes))
     if (!rect) return
-    const padding = framed.length ? 0.22 : 0.08
-    const id = requestAnimationFrame(() => rf.fitBounds(rect, { padding, duration: 550 }))
+    const id = requestAnimationFrame(() => rf.fitBounds(rect, { padding: 0.08, duration: 550 }))
     return () => cancelAnimationFrame(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, boxes, rf])
+  }, [boxes, rf])
 
   return null
 }
@@ -76,12 +73,6 @@ export function SceneViewer({
   const nodes = useMemo(() => toFlowNodes(scene, boxes, direction, lit), [scene, boxes, direction, lit])
   const edges = useMemo(() => toFlowEdges(scene, lit), [scene, lit])
 
-  const focusIds = useMemo(() => {
-    if (phase !== 'focused') return []
-    return Array.isArray(focus) ? focus : focus ? [focus] : []
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, focusKey])
-
   return (
     <div className="scene-flow">
       <ReactFlow
@@ -99,7 +90,7 @@ export function SceneViewer({
         minZoom={0.2}
         maxZoom={8}
       >
-        <Camera boxes={boxes} focusIds={focusIds} />
+        <Camera boxes={boxes} />
       </ReactFlow>
     </div>
   )

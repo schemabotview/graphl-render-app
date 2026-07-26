@@ -175,15 +175,24 @@
 }
 
 /* --- active edge label ---------------------------------------------------- */
+/* Lift the whole edge-label layer above the node layer (React Flow paints it below by
+   default) so a connector label never hides behind a block it crosses. */
+.react-flow__edgelabel-renderer {
+  z-index: 6;
+}
+
 .scene-edge-label {
   position: absolute;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: #1c1f26;
-  border: 1px solid #3a3f4b;
-  color: #e6e8ee;
-  font-size: 13px;
+  color: #eef0f5;
+  font-size: 16px;
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
+  /* No box — a stacked dark halo keeps the bare text legible over the dark canvas
+     AND over a bright block, so labels read like penciled-in edge annotations. */
+  text-shadow:
+    0 0 3px #14161b,
+    0 0 3px #14161b,
+    0 0 6px #14161b,
+    0 1px 2px rgba(0, 0, 0, 0.85);
 }

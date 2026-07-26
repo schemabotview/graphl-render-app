@@ -63,7 +63,7 @@ function DiagramBlock({ children }: { children: React.ReactNode }) {
 // softer body gray, teal list markers).
 const components: Components = {
   h2: ({ children }) => (
-    <h2 className="mt-6 text-[28px] font-semibold leading-snug text-white first:mt-0">
+    <h2 className="mt-6 text-[28px] font-bold leading-snug text-role-teal first:mt-0">
       {children}
     </h2>
   ),
@@ -117,13 +117,24 @@ const components: Components = {
     ),
 }
 
-export default function SlidePane({ width, slide }: { width: number; slide: Slide }) {
+export default function SlidePane({
+  width,
+  slide,
+  accent,
+}: {
+  width: number
+  slide: Slide
+  /** Concept brand accent (from the catalog) — colors the slide title. */
+  accent: string
+}) {
   return (
     <section
       className="flex h-full shrink-0 flex-col justify-center border-l border-white/10 bg-scene px-16 py-14"
       style={{ width }}
     >
-      <h1 className="text-[40px] font-bold leading-tight text-white">{slide.title}</h1>
+      <h1 className="text-[40px] font-bold leading-tight" style={{ color: accent }}>
+        {slide.title}
+      </h1>
       <div className="mt-8">
         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={components}>
           {slide.body}

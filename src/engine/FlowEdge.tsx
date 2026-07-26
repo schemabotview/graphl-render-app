@@ -59,14 +59,17 @@ export function FlowEdge({ id, source, target, data, markerEnd }: EdgeProps) {
   const label = data?.label as string | undefined
 
   // Three calm states keyed off the section spotlight (set in sceneGraph):
-  //   active  — touches a lit node: brighter, animated dot, label shown.
-  //   dimmed  — a spotlight is on but this edge isn't involved: nearly invisible.
-  //   neither — no spotlight (overview): a quiet static line, no dot/label clutter.
+  //   active  — touches a lit node: brightest, animated dot, label at full strength.
+  //   dimmed  — a spotlight is on but this edge isn't involved: line + label recede together.
+  //   neither — no spotlight (overview): a quiet-but-legible line WITH its label. The scene
+  //             never zooms, so edges + labels must read at overview scale at all times.
+  // The label always renders (just faded when dimmed) and rides ABOVE the node layer
+  // (z-index in scene.css) so it never hides behind a block.
   const active = data?.active === true
   const dimmed = data?.dimmed === true
-  const opacity = dimmed ? 0.08 : active ? 0.95 : 0.5
+  const opacity = dimmed ? 0.08 : active ? 0.95 : 0.6
   const showDot = active && data?.animated !== false
-  const showLabel = !!label && active
+  const showLabel = !!label
 
   return (
     <>
@@ -74,7 +77,7 @@ export function FlowEdge({ id, source, target, data, markerEnd }: EdgeProps) {
         id={id}
         path={path}
         markerEnd={dimmed ? undefined : markerEnd}
-        style={{ stroke: color, strokeWidth: active ? 1.75 : 1.5, opacity, transition: 'opacity 0.25s ease' }}
+        style={{ stroke: color, strokeWidth: active ? 2 : 1.75, opacity, transition: 'opacity 0.25s ease' }}
       />
       {showDot && (
         <circle r={3} fill={color} opacity={0.85}>
@@ -85,7 +88,11 @@ export function FlowEdge({ id, source, target, data, markerEnd }: EdgeProps) {
         <EdgeLabelRenderer>
           <div
             className="scene-edge-label"
-            style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` }}
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              opacity: dimmed ? 0.3 : 1,
+              transition: 'opacity 0.25s ease',
+            }}
           >
             {label}
           </div>

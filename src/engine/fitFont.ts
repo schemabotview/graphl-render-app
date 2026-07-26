@@ -16,7 +16,7 @@ export function fitLabelPx(label: string, w: number, h: number, kind: NodeKind):
     const chars = Math.max(1, label.replace(/\s+/g, ' ').trim().length)
     const byWidth = Math.max(w - 4, 6) / (chars * 0.85)
     const byHeight = Math.max(h - 4, 6) / 1.2
-    return Math.max(4, Math.min(byWidth, byHeight, 15))
+    return Math.max(4, Math.min(byWidth, byHeight, 22))
   }
   const words = label.split(/\s+/).filter(Boolean)
   const longest = Math.max(1, ...words.map((word) => word.length))

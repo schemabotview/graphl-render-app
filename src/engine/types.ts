@@ -20,6 +20,9 @@ export interface SceneNodeSpec {
   kind?: NodeKind
   /** Optional smaller caption under the label. */
   sub?: string
+  /** Optional data type / role tag for a `term` used as an ERD table row — rendered
+   *  right-aligned and dimmed on the SAME line (e.g. `customer_key` … `int PK`). */
+  type?: string
   /** Optional icon name (see engine/icons.tsx) for a `symbol` node — drawn above the label. */
   icon?: string
   /** Render the icon to the LEFT of the label (instead of above). For short-but-wide

@@ -41,6 +41,7 @@ export function toFlowNodes(
       data: {
         label: n.label,
         sub: n.sub,
+        type: n.type,
         icon: n.icon,
         iconInline: n.iconInline,
         mono: n.mono,

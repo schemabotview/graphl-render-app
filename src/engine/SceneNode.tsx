@@ -15,6 +15,7 @@ function deriveInitials(label: string, count = 2): string {
 export interface SceneNodeData {
   label: string
   sub?: string
+  type?: string
   icon?: string
   iconInline?: boolean
   mono?: boolean
@@ -51,7 +52,14 @@ export function SceneNode({ data }: NodeProps) {
   // Inline (icon/badge-left) mode steals horizontal room from the label, so size the
   // font against the narrower label area to keep it inside the box.
   const inlineIcon = !!((Icon || mono) && d.iconInline)
-  const labelWidth = inlineIcon ? Math.max(24, d.width - iconSize - 12) : d.width
+  // An ERD row: a `term` carrying a right-aligned data type. The name only owns the
+  // left ~60% of the width, so size it against that (the type takes the rest).
+  const rowType = d.kind === 'term' && !!d.type
+  const labelWidth = inlineIcon
+    ? Math.max(24, d.width - iconSize - 12)
+    : rowType
+      ? Math.max(24, d.width * 0.6)
+      : d.width
   const font = isContainer
     ? fitTitlePx(d.label, d.width)
     : fitLabelPx(d.label, labelWidth, d.height, d.kind)
@@ -80,9 +88,20 @@ export function SceneNode({ data }: NodeProps) {
           ) : (
             Icon && <Icon className="scene-node__icon" size={iconSize} strokeWidth={1.75} />
           )}
-          <span className="scene-node__label" style={{ fontSize: font }}>
-            {d.label}
-          </span>
+          {rowType ? (
+            <span className="scene-node__row">
+              <span className="scene-node__label" style={{ fontSize: font }}>
+                {d.label}
+              </span>
+              <span className="scene-node__type" style={{ fontSize: font * 0.82 }}>
+                {d.type}
+              </span>
+            </span>
+          ) : (
+            <span className="scene-node__label" style={{ fontSize: font }}>
+              {d.label}
+            </span>
+          )}
           {d.sub && <span className="scene-node__sub">{d.sub}</span>}
         </>
       )}

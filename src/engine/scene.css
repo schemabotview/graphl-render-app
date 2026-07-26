@@ -133,6 +133,31 @@
   text-overflow: clip;
 }
 
+/* --- ERD row: a term carrying a data type — name left, type right --------- */
+.scene-node__row {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+}
+.scene-node__row .scene-node__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  padding: 0;
+}
+.scene-node__type {
+  flex: none;
+  font-weight: 500;
+  white-space: nowrap;
+  /* a dim, role-tinted monospace-ish type tag, right-aligned like a schema column */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--node-color) 52%, #cfd4de 48%);
+}
+
 /* --- container: subtle titled panel; title rides the top-left border ------- */
 .scene-node--container {
   background: color-mix(in srgb, var(--node-color) 12%, var(--base));

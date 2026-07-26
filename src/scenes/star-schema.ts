@@ -128,7 +128,7 @@ export const starSchema: SceneSpec = {
       color: GRAY,
       kind: 'container',
       cell: [0, 0],
-      layout: { cols: [1, 1.5, 1], rows: [1, 1.7, 1, 0.3], gap: 0.34, padding: 0.34 },
+      layout: { cols: [1, 1.5, 1], rows: [1, 1.3, 0.8, 0.3], gap: 0.34, padding: 0.34 },
       children: [
         // top row — the date dimension centered above the hub
         { ...dimDate, cell: [1, 0] },

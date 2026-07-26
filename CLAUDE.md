@@ -44,16 +44,16 @@ what's being implemented.
 ## Content wiring is GitHub-only (owner's decision)
 
 The app fetches content from raw GitHub (`raw.githubusercontent.com/schemabotview/…`) —
-the default `contentBaseUrl` per concept in `src/content/catalog.ts`. To publish a content
-edit, push the content repo to GitHub. Do NOT wire the app to a local content server as a
-default. The `VITE_CONTENT_BASE_URL` override exists only for locally previewing unpushed
-content (set it when starting Vite).
+the `contentBaseUrl` per concept in `src/content/catalog.ts`. To publish a content edit
+(the only way to preview it), push the content repo to GitHub. Do NOT wire the app to a
+local content server. There is no content-base override — the GitHub URL is the only
+source, so a preview always reflects what's pushed.
 
 **Fetch contract:** the app ships no content. It fetches `manifest.json` (wires each
 section to its `scene` id, `slide` path, `focus`, `highlight`) + each section's `.slide`.
 Narration is NOT in the manifest — it's derived by convention: `audio/<slug>.wav` (the
-slug is the slide stem). The `-ct` content repos may not exist yet; until they do (or an
-override is set), fetches 404 — expected for the current build phase.
+slug is the slide stem). The `-ct` content repos may not exist yet; until they do, fetches
+404 — expected for the current build phase.
 
 ---
 

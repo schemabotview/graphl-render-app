@@ -209,7 +209,7 @@
 .scene-edge-label {
   position: absolute;
   color: #eef0f5;
-  font-size: 16px;
+  /* font-size is set inline in FlowEdge (scales with the live camera zoom, clamped). */
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;

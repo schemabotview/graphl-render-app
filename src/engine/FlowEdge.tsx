@@ -4,12 +4,23 @@ import {
   getBezierPath,
   getSmoothStepPath,
   useInternalNode,
+  useStore,
   Position,
   type EdgeProps,
   type InternalNode,
   type Node,
 } from '@xyflow/react'
 import { EDGE } from './colors.ts'
+
+// Edge labels ride the EdgeLabelRenderer, which only TRANSLATES its layer — it never
+// scales it. Unlike node labels (sized in canvas coords, so they shrink with the map),
+// a fixed-px edge label stays screen-sized and overpowers the graph when zoomed out.
+// So we scale the font with the live camera zoom and CLAMP it: proportional to the map,
+// but never smaller than legible nor larger than LABEL_MAX (the "upper limit").
+const LABEL_BASE = 16 // px at zoom 1 (the old fixed size — now the cap)
+const LABEL_MIN = 8 // floor so a zoomed-out label stays readable
+const LABEL_MAX = 16 // ceiling so a zoomed-in label never balloons
+const labelPx = (zoom: number) => Math.max(LABEL_MIN, Math.min(LABEL_MAX, LABEL_BASE * zoom))
 
 // Floating-edge geometry: connect at the point on each node's border that faces the
 // other node, so an edge leaves whichever side actually points at its target — routes
@@ -43,6 +54,7 @@ function sideOf(node: InternalNode<Node>, p: { x: number; y: number }): Position
 export function FlowEdge({ id, source, target, data, markerEnd }: EdgeProps) {
   const sourceNode = useInternalNode(source)
   const targetNode = useInternalNode(target)
+  const zoom = useStore((s) => s.transform[2])
   if (!sourceNode?.measured.width || !targetNode?.measured.width) return null
 
   const s = borderPoint(sourceNode, targetNode)
@@ -90,6 +102,7 @@ export function FlowEdge({ id, source, target, data, markerEnd }: EdgeProps) {
             className="scene-edge-label"
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              fontSize: `${labelPx(zoom)}px`,
               opacity: dimmed ? 0.3 : 1,
               transition: 'opacity 0.25s ease',
             }}

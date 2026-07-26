@@ -15,24 +15,21 @@ export interface Concept {
 
 const RAW = 'https://raw.githubusercontent.com'
 
-// Dev override: point every concept at a locally-served content repo (CORS-enabled)
-// to review unpushed content. Set VITE_CONTENT_BASE_URL when starting `vite`.
-const OVERRIDE = import.meta.env.VITE_CONTENT_BASE_URL as string | undefined
-
-// Forward-looking: these `-ct` content repos don't exist yet. Until they do (or a local
-// override is set), fetches will 404 — expected for the current build phase.
+// Content is always fetched from GitHub (owner's decision) — one repo per concept. To
+// publish a content edit, push the concept's `-ct` repo. Some `-ct` repos may not exist
+// yet; until they do, fetches 404 — expected for the current build phase.
 export const catalog: Record<string, Concept> = {
   'data-warehousing': {
     id: 'data-warehousing',
     label: 'Data Warehousing',
-    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/data-warehousing-ct/main`,
+    contentBaseUrl: `${RAW}/schemabotview/data-warehousing-ct/main`,
     accent: '#5b8cff', // blue
     accentDeep: '#101a2e',
   },
   'apache-spark': {
     id: 'apache-spark',
     label: 'Apache Spark',
-    contentBaseUrl: OVERRIDE ?? `${RAW}/schemabotview/apache-spark-ct/main`,
+    contentBaseUrl: `${RAW}/schemabotview/apache-spark-ct/main`,
     accent: '#ff7a3d', // Spark orange, lifted for dark
     accentDeep: '#2a1408',
   },

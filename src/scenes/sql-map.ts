@@ -231,18 +231,12 @@ export const sqlMap: SceneSpec = {
       ],
     },
   ],
+  // Edges tell the READ story only — the spine that connects the regions. The other
+  // regions (DDL, Transactions, Set Ops, Programmable) are self-labeled and stay
+  // arrow-free to avoid clutter: catalog → storage → the pipeline chain → set ops.
   edges: [
-    // DDL mutates catalog metadata
-    { from: 'create-table', to: 'catalog', label: 'creates' },
-    { from: 'alter-table', to: 'catalog', label: 'modifies' },
-    { from: 'drop-table', to: 'catalog', label: 'drops' },
-    { from: 'create-index', to: 'catalog', label: 'adds' },
-    { from: 'create-view', to: 'catalog', label: 'defines' },
-    // TRUNCATE empties data only; catalog entry stays
-    { from: 'truncate', to: 'rows', label: 'empties' },
-    // Catalog describes the physical layout
+    // Catalog describes the physical layout; FROM scans those rows into the pipeline
     { from: 'table', to: 'storage', label: 'schema for' },
-    // FROM scans rows from storage
     { from: 'rows', to: 'from-clause', label: 'scan' },
     // The pipeline chain — logical run order (NOT written order)
     { from: 'from-clause', to: 'join', label: 'rows' },
@@ -258,15 +252,5 @@ export const sqlMap: SceneSpec = {
     { from: 'window', to: 'select-clause', label: 'OVER()' },
     // Set ops compose pipeline outputs
     { from: 'select-clause', to: 'union', label: 'compose' },
-    // Write DML mutates the same rows FROM scans (closes the loop)
-    { from: 'insert', to: 'rows', label: 'writes' },
-    { from: 'update', to: 'rows', label: 'modifies' },
-    { from: 'delete', to: 'rows', label: 'removes' },
-    { from: 'merge', to: 'rows', label: 'upsert' },
-    // Programmable objects wrap the base pieces
-    { from: 'create-view', to: 'prog-views', label: 'defines' },
-    { from: 'triggers', to: 'write-dml', label: 'fires on' },
-    // DCL controls access to catalog objects
-    { from: 'grant', to: 'table', label: 'grants on' },
   ],
 }

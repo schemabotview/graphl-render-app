@@ -33,6 +33,13 @@ export const catalog: Record<string, Concept> = {
     accent: '#ff7a3d', // Spark orange, lifted for dark
     accentDeep: '#2a1408',
   },
+  sql: {
+    id: 'sql',
+    label: 'SQL',
+    contentBaseUrl: `${RAW}/schemabotview/sql-ct/main`,
+    accent: '#3fd0d6', // teal — query / data flow, distinct from DW blue
+    accentDeep: '#08262a',
+  },
 }
 
 export const getConcept = (id: string): Concept | undefined => catalog[id]

@@ -281,21 +281,21 @@ export const sparkArchitecture: SceneSpec = {
     { from: 'driver', to: 'session', label: 'init' },
     { from: 'session', to: 'logical-plan', label: 'DataFrame' },
     { from: 'session', to: 'job', label: 'RDD' },
-    { from: 'logical-plan', to: 'analyzed-plan', label: 'resolve' },
-    { from: 'analyzed-plan', to: 'optimized-plan', label: 'optimize' },
-    { from: 'optimized-plan', to: 'physical-plan', label: 'cost' },
+    // Catalyst's four plans sit in a strict left→right row inside the box, so the
+    // resolve/optimize/cost edges between adjacent chips were self-explanatory and
+    // their labels overprinted the plan names — dropped. Keep physical→tungsten (codegen),
+    // which crosses out of the box.
     { from: 'physical-plan', to: 'tungsten', label: 'codegen' },
     { from: 'tungsten', to: 'job', label: 'execute' },
-    { from: 'job', to: 'stage-1', label: 'split' },
-    { from: 'stage-1', to: 'shuffle', label: 'wide' },
-    { from: 'shuffle', to: 'stage-2', label: 'regroup' },
-    { from: 'stage-2', to: 'tasks', label: 'taskset' },
+    // DAG scheduler's job→stage-1→shuffle→stage-2→tasks is likewise a left→right row;
+    // the split/wide/regroup/taskset edges were redundant with the layout and clipped
+    // the chips. Keep tasks→task-scheduler (submit), which crosses out of the box.
     { from: 'tasks', to: 'task-scheduler', label: 'submit' },
     { from: 'task-scheduler', to: 'cluster-mgr', label: 'request' },
     { from: 'cluster-mgr', to: 'exec-a', label: 'launch' },
     { from: 'cluster-mgr', to: 'exec-b', label: 'launch' },
-    { from: 'exec-a', to: 'core1-a', label: 'run' },
-    { from: 'exec-b', to: 'core1-b', label: 'run' },
+    // exec→core1 "run" dropped: the cores sit inside the executor's own worker box, so
+    // the arrow only overprinted Core 1 with a self-evident label.
 
     // Worker A — batch ingestion into Bronze
     { from: 'hdfs', to: 'core1-a', label: 'read partition' },
@@ -318,9 +318,9 @@ export const sparkArchitecture: SceneSpec = {
     { from: 'commit-log', to: 'shared-checkpoint', label: 'mark done' },
     { from: 'local-watermark-b', to: 'global-watermark', label: 'report max' },
 
-    // State path on Worker B: window → rocksdb → snapshot → checkpoint
-    { from: 'window-state-b', to: 'rocksdb-b', label: 'store' },
-    { from: 'rocksdb-b', to: 'state-snapshot-b', label: 'snapshot' },
+    // State path on Worker B: the Stateful Ops chips (window → rocksdb → snapshot) sit in
+    // a left→right row, so the store/snapshot edges between them were redundant with the
+    // layout and overprinted the chips — dropped. Keep the edge that leaves the box:
     { from: 'state-snapshot-b', to: 'shared-checkpoint', label: 'write state' },
   ],
 }

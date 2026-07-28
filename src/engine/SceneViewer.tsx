@@ -19,13 +19,33 @@ const edgeTypes = { flow: FlowEdge }
 // camera push-in via `zoom`: once the intro flips to 'focused', the camera frames just
 // the `focus` box(es) so dense scenes' inner labels become readable. Boxes come from the
 // grid resolver, so we fitBounds our own rect — no dependence on RF measuring nodes.
-function unionBox(bs: Box[]): { x: number; y: number; width: number; height: number } | null {
+type Rect = { x: number; y: number; width: number; height: number }
+
+function unionBox(bs: Box[]): Rect | null {
   if (!bs.length) return null
   const minX = Math.min(...bs.map((b) => b.x))
   const minY = Math.min(...bs.map((b) => b.y))
   const maxX = Math.max(...bs.map((b) => b.x + b.w))
   const maxY = Math.max(...bs.map((b) => b.y + b.h))
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
+}
+
+// The context floor: a zoom-in never frames LESS than this fraction of the whole scene,
+// so a small focus box doesn't fill the pane and wipe out the surrounding map. A tiny
+// focus rect is grown (centered on the focus, clamped inside the scene) up to the floor;
+// a focus rect already larger than the floor is left as-is. Lower = tighter zoom / less
+// context; higher = gentler zoom / more of the bigger picture stays visible.
+const MIN_FRAME_FRAC = 0.3
+
+function withContextFloor(focus: Rect, full: Rect): Rect {
+  const w = Math.min(Math.max(focus.width, full.width * MIN_FRAME_FRAC), full.width)
+  const h = Math.min(Math.max(focus.height, full.height * MIN_FRAME_FRAC), full.height)
+  const cx = focus.x + focus.width / 2
+  const cy = focus.y + focus.height / 2
+  // Center on the focus, then clamp so the grown frame stays within the scene bounds.
+  const x = Math.max(full.x, Math.min(cx - w / 2, full.x + full.width - w))
+  const y = Math.max(full.y, Math.min(cy - h / 2, full.y + full.height - h))
+  return { x, y, width: w, height: h }
 }
 
 function Camera({
@@ -42,14 +62,16 @@ function Camera({
   const rf = useReactFlow()
 
   useEffect(() => {
-    let rect = unionBox(Object.values(boxes))
+    const full = unionBox(Object.values(boxes))
+    let rect = full
     let padding = 0.08
     // Push in to the focus box(es) only once focused — the overview beat still shows the
     // whole scene, then the camera Ken-Burns in. Missing focus ids fall back to overview.
-    if (zoom && phase === 'focused' && focusKey) {
+    // The context floor caps the push-in so the surrounding map never fully leaves frame.
+    if (zoom && phase === 'focused' && focusKey && full) {
       const framed = unionBox(focusKey.split(',').map((id) => boxes[id]).filter(Boolean) as Box[])
       if (framed) {
-        rect = framed
+        rect = withContextFloor(framed, full)
         padding = 0.16
       }
     }

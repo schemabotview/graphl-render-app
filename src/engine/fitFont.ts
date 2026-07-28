@@ -14,13 +14,13 @@ import type { NodeKind } from './types.ts'
 export function fitLabelPx(label: string, w: number, h: number, kind: NodeKind): number {
   if (kind === 'term') {
     const chars = Math.max(1, label.replace(/\s+/g, ' ').trim().length)
-    const byWidth = Math.max(w - 4, 6) / (chars * 0.85)
+    const byWidth = Math.max(w - 4, 6) / (chars * 0.72)
     const byHeight = Math.max(h - 4, 6) / 1.2
     return Math.max(4, Math.min(byWidth, byHeight, 22))
   }
   const words = label.split(/\s+/).filter(Boolean)
   const longest = Math.max(1, ...words.map((word) => word.length))
-  const byWidth = Math.max(w - 20, 8) / (longest * 0.85)
+  const byWidth = Math.max(w - 20, 8) / (longest * 0.72)
   const lines = words.length > 1 ? 2 : 1
   const byHeight = Math.max(h - 18, 8) / (lines * 1.25)
   return Math.max(7, Math.min(byWidth, byHeight, 22)) // symbol cap

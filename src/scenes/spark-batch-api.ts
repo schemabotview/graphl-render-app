@@ -646,7 +646,7 @@ const perf = container(
 
 const root = group(
   'spark-batch-root',
-  wgrid({ cols: [1], rows: [2.2, 14, 2.2], gap: 0.5, padding: 0.4 }, [
+  wgrid({ cols: [1], rows: [2.2, 14, 2.2], gap: 0.5, padding: 0.05 }, [
     { node: setup, at: [0, 0] },
     { node: pipeline, at: [0, 1] },
     { node: perf, at: [0, 2] },
@@ -657,7 +657,7 @@ export const sparkBatchApi: SceneSpec = {
   id: 'spark-batch-api',
   title: 'Apache Spark — Batch API',
   // ~36:22 canvas (the source's frame) so the wide map renders close to square.
-  canvas: { width: 1440, height: 880 },
+  canvas: { width: 1440, height: 1180 },
   grid: { cols: 1, rows: 1, gap: 0, padding: 0.05 },
   nodes: [root],
   // The batch pipeline spine: Setup → sources → read → (the four API lanes) →

@@ -22,6 +22,12 @@ export interface SectionSpec {
   highlight?: string[]
   /** Scene node id(s) the camera frames. */
   focus?: string | string[]
+  /**
+   * Opt-in camera push-in. When true, the camera zooms to frame the `focus` box(es)
+   * (after the title beat) instead of holding the whole-scene overview — for dense
+   * scenes whose inner labels are unreadable at overview zoom. Default: whole-scene.
+   */
+  zoom?: boolean
   spine?: boolean
   role?: string
 }

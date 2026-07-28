@@ -12,11 +12,13 @@ import './scene.css'
 const nodeTypes = { scene: SceneNode }
 const edgeTypes = { flow: FlowEdge }
 
-// The camera lives INSIDE <ReactFlow> so `useReactFlow()` gives a live instance. It
-// always frames the union of ALL node boxes — the WHOLE scene stays visible the entire
-// section, so the viewer never loses the broader picture. Focus is expressed purely by
-// brighten-focused + dim-the-rest (see scene.css), NOT by a camera zoom. Boxes come from
-// the grid resolver, so we fitBounds our own rect — no dependence on RF measuring nodes.
+// The camera lives INSIDE <ReactFlow> so `useReactFlow()` gives a live instance. By
+// default it frames the union of ALL node boxes — the WHOLE scene stays visible the
+// entire section, so the viewer never loses the broader picture, and focus is expressed
+// purely by brighten-focused + dim-the-rest (see scene.css). A section may OPT IN to a
+// camera push-in via `zoom`: once the intro flips to 'focused', the camera frames just
+// the `focus` box(es) so dense scenes' inner labels become readable. Boxes come from the
+// grid resolver, so we fitBounds our own rect — no dependence on RF measuring nodes.
 function unionBox(bs: Box[]): { x: number; y: number; width: number; height: number } | null {
   if (!bs.length) return null
   const minX = Math.min(...bs.map((b) => b.x))
@@ -26,15 +28,35 @@ function unionBox(bs: Box[]): { x: number; y: number; width: number; height: num
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
 }
 
-function Camera({ boxes }: { boxes: Record<string, Box> }) {
+function Camera({
+  boxes,
+  focusKey,
+  zoom,
+  phase,
+}: {
+  boxes: Record<string, Box>
+  focusKey: string
+  zoom: boolean
+  phase: 'overview' | 'focused'
+}) {
   const rf = useReactFlow()
 
   useEffect(() => {
-    const rect = unionBox(Object.values(boxes))
+    let rect = unionBox(Object.values(boxes))
+    let padding = 0.08
+    // Push in to the focus box(es) only once focused — the overview beat still shows the
+    // whole scene, then the camera Ken-Burns in. Missing focus ids fall back to overview.
+    if (zoom && phase === 'focused' && focusKey) {
+      const framed = unionBox(focusKey.split(',').map((id) => boxes[id]).filter(Boolean) as Box[])
+      if (framed) {
+        rect = framed
+        padding = 0.16
+      }
+    }
     if (!rect) return
-    const id = requestAnimationFrame(() => rf.fitBounds(rect, { padding: 0.08, duration: 550 }))
+    const id = requestAnimationFrame(() => rf.fitBounds(rect!, { padding, duration: 550 }))
     return () => cancelAnimationFrame(id)
-  }, [boxes, rf])
+  }, [boxes, focusKey, zoom, phase, rf])
 
   return null
 }
@@ -43,10 +65,12 @@ export function SceneViewer({
   scene,
   highlight,
   focus,
+  zoom = false,
 }: {
   scene: SceneSpec
   highlight?: string[]
   focus?: string | string[]
+  zoom?: boolean
 }) {
   const direction = sceneDirection(scene)
   const boxes = useMemo(() => resolveGrid(scene.nodes, scene.grid, scene.canvas), [scene])
@@ -90,7 +114,7 @@ export function SceneViewer({
         minZoom={0.2}
         maxZoom={8}
       >
-        <Camera boxes={boxes} />
+        <Camera boxes={boxes} focusKey={focusKey} zoom={zoom} phase={phase} />
       </ReactFlow>
     </div>
   )

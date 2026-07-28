@@ -47,6 +47,7 @@ interface StageFrameProps {
   onOpenerDone?: () => void
   highlight?: string[]
   focus?: string | string[]
+  zoom?: boolean
 }
 
 export default function StageFrame({
@@ -59,6 +60,7 @@ export default function StageFrame({
   onOpenerDone,
   highlight,
   focus,
+  zoom,
 }: StageFrameProps) {
   const scale = useFitScale()
   return (
@@ -82,6 +84,7 @@ export default function StageFrame({
             scene={scene}
             highlight={opener ? undefined : highlight}
             focus={opener ? undefined : focus}
+            zoom={opener ? false : zoom}
           />
           <SlidePane width={SLIDE_W} slide={slide} accent={accent} />
           {!opener && <SectionBanner title={bannerTitle} kicker={bannerKicker} accent={accent} />}

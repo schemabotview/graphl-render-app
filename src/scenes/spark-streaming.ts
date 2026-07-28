@@ -78,7 +78,7 @@ const queryHandle = container(
 
 const setup = container(
   { id: 's-setup', label: 'Setup', color: PURPLE },
-  wgrid({ cols: [1.2, 1.1, 1.3], rows: [1], gap: 0.3, padding: P }, [
+  wgrid({ cols: [1.2, 1.1, 1.3], rows: [1], gap: 0.1, padding: P }, [
     { node: session, at: [0, 0] },
     { node: manager, at: [1, 0] },
     { node: queryHandle, at: [2, 0] },
@@ -339,7 +339,7 @@ const stateStore = container(
 
 const concerns = container(
   { id: 's-concerns', label: 'Streaming Concerns', color: GRAY },
-  wgrid({ cols: [1, 1, 1], rows: [1], gap: 0.3, padding: P }, [
+  wgrid({ cols: [1, 1, 1], rows: [1], gap: 0.1, padding: P }, [
     { node: triggers, at: [0, 0] },
     { node: checkpoint, at: [1, 0] },
     { node: stateStore, at: [2, 0] },
@@ -352,7 +352,7 @@ const concerns = container(
 
 const root = group(
   'spark-streaming-root',
-  wgrid({ cols: [1], rows: [2.4, 13.6, 2.4], gap: 0.5, padding: 0.4 }, [
+  wgrid({ cols: [1], rows: [2.4, 13.6, 2.4], gap: 0.5, padding: 0.05}, [
     { node: setup, at: [0, 0] },
     { node: pipeline, at: [0, 1] },
     { node: concerns, at: [0, 2] },
@@ -363,7 +363,7 @@ export const sparkStreaming: SceneSpec = {
   id: 'spark-streaming',
   title: 'Apache Spark — Streaming',
   // ~36:22 canvas (the source's frame) so the wide map renders close to square.
-  canvas: { width: 1440, height: 700 },
+  canvas: { width: 1440, height: 1000 },
   grid: { cols: 1, rows: 1, gap: 0, padding: 0.05 },
   nodes: [root],
   // Streaming spine: Setup → sources → readStream → DataFrame → writeStream →

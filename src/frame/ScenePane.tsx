@@ -9,13 +9,14 @@ interface ScenePaneProps {
   scene?: SceneSpec
   highlight?: string[]
   focus?: string | string[]
+  zoom?: boolean
 }
 
-export default function ScenePane({ width, scene, highlight, focus }: ScenePaneProps) {
+export default function ScenePane({ width, scene, highlight, focus, zoom }: ScenePaneProps) {
   return (
     <section className="relative h-full shrink-0 bg-scene" style={{ width }}>
       {scene ? (
-        <SceneViewer scene={scene} highlight={highlight} focus={focus} />
+        <SceneViewer scene={scene} highlight={highlight} focus={focus} zoom={zoom} />
       ) : (
         <div className="grid h-full place-items-center text-role-gray/50">Scene coming soon</div>
       )}

@@ -187,6 +187,7 @@ export default function App() {
       onOpenerDone={() => setOpener(null)}
       highlight={section.highlight}
       focus={section.focus}
+      zoom={section.zoom}
     />
   )
 }

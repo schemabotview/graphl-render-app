@@ -40,6 +40,20 @@ export const catalog: Record<string, Concept> = {
     accent: '#3fd0d6', // teal — query / data flow, distinct from DW blue
     accentDeep: '#08262a',
   },
+  python: {
+    id: 'python',
+    label: 'Python',
+    contentBaseUrl: `${RAW}/schemabotview/python-ct/main`,
+    accent: '#ffd54a', // Python gold — distinct from DW blue / SQL teal / Spark orange
+    accentDeep: '#2a2208',
+  },
+  linux: {
+    id: 'linux',
+    label: 'Linux',
+    contentBaseUrl: `${RAW}/schemabotview/linux-ct/main`,
+    accent: '#37d39a', // terminal green
+    accentDeep: '#08281d',
+  },
 }
 
 export const getConcept = (id: string): Concept | undefined => catalog[id]

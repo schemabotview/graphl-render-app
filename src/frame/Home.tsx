@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { catalog, type Concept } from '../content/catalog'
+import { catalog, CATEGORY_ORDER, type Concept } from '../content/catalog'
 import { fetchManifest } from '../content/client'
 import { slugOf } from '../content/nav'
 import type { Manifest, ModuleSpec, SectionSpec } from '../content/types'
@@ -40,9 +40,20 @@ export default function Home({ onOpen }: HomeProps) {
         <h1 className="text-3xl font-semibold tracking-tight">GraphL — Course Index</h1>
         <p className="mt-2 text-role-gray">Pick a section to open it in the player.</p>
 
-        {concepts.map((c) => (
-          <ConceptBlock key={c.id} concept={c} loaded={loaded[c.id]} onOpen={onOpen} />
-        ))}
+        {CATEGORY_ORDER.map((category) => {
+          const inCategory = concepts.filter((c) => c.category === category)
+          if (inCategory.length === 0) return null // skip categories with no concepts yet
+          return (
+            <div key={category} className="mt-12">
+              <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-role-gray">
+                {category}
+              </h2>
+              {inCategory.map((c) => (
+                <ConceptBlock key={c.id} concept={c} loaded={loaded[c.id]} onOpen={onOpen} />
+              ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

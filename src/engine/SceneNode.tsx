@@ -47,7 +47,7 @@ export function SceneNode({ data }: NodeProps) {
   const horizontal = d.direction === 'horizontal'
   const isContainer = d.kind === 'container'
   const mono = d.kind === 'symbol' && !!d.mono
-  const Icon = d.kind === 'symbol' ? getIcon(d.icon) : undefined
+  const Icon = d.kind === 'symbol' || isContainer ? getIcon(d.icon) : undefined
   const iconSize = Math.max(18, Math.min(Math.min(d.width, d.height) * 0.4, 48))
   // Inline (icon/badge-left) mode steals horizontal room from the label, so size the
   // font against the narrower label area to keep it inside the box.
@@ -77,6 +77,7 @@ export function SceneNode({ data }: NodeProps) {
       />
       {isContainer ? (
         <span className="scene-node__title" style={{ fontSize: font }}>
+          {Icon && <Icon className="scene-node__title-icon" size={Math.round(font)} strokeWidth={1.75} />}
           {d.label}
         </span>
       ) : (

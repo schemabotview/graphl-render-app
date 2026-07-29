@@ -38,6 +38,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'ddl',
           label: 'DDL — Metadata',
+          icon: 'terminal',
           color: ORANGE,
           kind: 'container',
           cell: [0, 0, 1, 2],
@@ -56,6 +57,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'catalog',
           label: 'Catalog — Metadata',
+          icon: 'database',
           color: BLUE,
           kind: 'container',
           cell: [1, 0],
@@ -66,6 +68,7 @@ export const sqlMap: SceneSpec = {
             {
               id: 'table',
               label: 'Table',
+              icon: 'table',
               color: BLUE,
               kind: 'container',
               cell: [0, 2],
@@ -76,6 +79,7 @@ export const sqlMap: SceneSpec = {
                 {
                   id: 'constraints',
                   label: 'Constraints',
+                  icon: 'shield',
                   color: BLUE,
                   kind: 'container',
                   cell: [0, 1, 2, 1],
@@ -96,6 +100,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'storage',
           label: 'Storage — Data',
+          icon: 'disk',
           color: GRAY,
           kind: 'container',
           cell: [1, 1],
@@ -111,6 +116,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'transactions',
           label: 'Transactions',
+          icon: 'workflow',
           color: PURPLE,
           kind: 'container',
           cell: [2, 0, 1, 2],
@@ -150,6 +156,7 @@ export const sqlMap: SceneSpec = {
             {
               id: 'dcl',
               label: 'Access Control — DCL',
+              icon: 'key',
               color: PURPLE,
               kind: 'container',
               cell: [0, 4, 2, 1],
@@ -165,6 +172,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'pipeline',
           label: 'Query Pipeline — logical execution order',
+          icon: 'funnel',
           color: GREEN,
           kind: 'container',
           cell: [0, 2, 3, 1],
@@ -176,6 +184,7 @@ export const sqlMap: SceneSpec = {
             {
               id: 'join',
               label: 'JOIN',
+              icon: 'share',
               color: TEAL,
               kind: 'container',
               cell: [1, 1],
@@ -202,6 +211,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'set-ops',
           label: 'Set Operations',
+          icon: 'layers',
           color: TEAL,
           kind: 'container',
           cell: [0, 3, 2, 1],
@@ -217,6 +227,7 @@ export const sqlMap: SceneSpec = {
         {
           id: 'programmable',
           label: 'Programmable',
+          icon: 'braces',
           color: PURPLE,
           kind: 'container',
           cell: [2, 3],

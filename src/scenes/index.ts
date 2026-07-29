@@ -7,6 +7,7 @@ import { dwArchitecture } from './dw-architecture.ts'
 import { starSchema } from './star-schema.ts'
 import { datavaultModel } from './datavault-model.ts'
 import { sqlMap } from './sql-map.ts'
+import { linux } from './linux.ts'
 
 // App-owned scene registry: the manifest references a scene by id (a string), and the
 // app resolves it here. Scenes are TypeScript (not content) — the React Flow diagram
@@ -27,6 +28,7 @@ const scenes: Record<string, SceneSpec> = {
   [starSchema.id]: starSchema,
   [datavaultModel.id]: datavaultModel,
   [sqlMap.id]: sqlMap,
+  [linux.id]: linux,
 }
 
 export const getScene = (id: string): SceneSpec | undefined => scenes[id]

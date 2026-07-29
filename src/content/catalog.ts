@@ -54,6 +54,34 @@ export const catalog: Record<string, Concept> = {
     accent: '#37d39a', // terminal green
     accentDeep: '#08281d',
   },
+  kubernetes: {
+    id: 'kubernetes',
+    label: 'Kubernetes',
+    contentBaseUrl: `${RAW}/schemabotview/kubernetes-ct/main`,
+    accent: '#5a8bff', // Kubernetes helm-blue, lifted for dark
+    accentDeep: '#0c1730',
+  },
+  aws: {
+    id: 'aws',
+    label: 'AWS Solutions Architect',
+    contentBaseUrl: `${RAW}/schemabotview/aws-ct/main`,
+    accent: '#ff9900', // AWS orange
+    accentDeep: '#2a1a02',
+  },
+  docker: {
+    id: 'docker',
+    label: 'Docker',
+    contentBaseUrl: `${RAW}/schemabotview/docker-ct/main`,
+    accent: '#2aa4f4', // Docker blue, lifted for dark
+    accentDeep: '#07202f',
+  },
+  'databricks-data-engineer': {
+    id: 'databricks-data-engineer',
+    label: 'Databricks Data Engineer',
+    contentBaseUrl: `${RAW}/schemabotview/databricks-data-engineer-ct/main`,
+    accent: '#ff3621', // Databricks lava red
+    accentDeep: '#2c0a06',
+  },
 }
 
 export const getConcept = (id: string): Concept | undefined => catalog[id]

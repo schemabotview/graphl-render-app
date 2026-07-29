@@ -8,6 +8,8 @@ import { starSchema } from './star-schema.ts'
 import { datavaultModel } from './datavault-model.ts'
 import { sqlMap } from './sql-map.ts'
 import { linux } from './linux.ts'
+import { javaJvm } from './java-jvm.ts'
+import { javaAnatomy } from './java-anatomy.ts'
 
 // App-owned scene registry: the manifest references a scene by id (a string), and the
 // app resolves it here. Scenes are TypeScript (not content) — the React Flow diagram
@@ -29,6 +31,8 @@ const scenes: Record<string, SceneSpec> = {
   [datavaultModel.id]: datavaultModel,
   [sqlMap.id]: sqlMap,
   [linux.id]: linux,
+  [javaJvm.id]: javaJvm,
+  [javaAnatomy.id]: javaAnatomy,
 }
 
 export const getScene = (id: string): SceneSpec | undefined => scenes[id]

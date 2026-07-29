@@ -82,6 +82,13 @@ export const catalog: Record<string, Concept> = {
     accent: '#ff3621', // Databricks lava red
     accentDeep: '#2c0a06',
   },
+  java: {
+    id: 'java',
+    label: 'Java',
+    contentBaseUrl: `${RAW}/schemabotview/java-ct/main`,
+    accent: '#e76f00', // Java coffee-orange
+    accentDeep: '#2a1403',
+  },
 }
 
 export const getConcept = (id: string): Concept | undefined => catalog[id]

@@ -77,7 +77,7 @@ export function SceneNode({ data }: NodeProps) {
       />
       {isContainer ? (
         <span className="scene-node__title" style={{ fontSize: font }}>
-          {Icon && <Icon className="scene-node__title-icon" size={Math.round(font)} strokeWidth={1.75} />}
+          {Icon && <Icon className="scene-node__title-icon" size={Math.round(font * 1.25)} strokeWidth={1.75} />}
           {d.label}
         </span>
       ) : (

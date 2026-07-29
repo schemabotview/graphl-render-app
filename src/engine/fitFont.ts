@@ -31,5 +31,7 @@ export function fitLabelPx(label: string, w: number, h: number, kind: NodeKind):
 export function fitTitlePx(label: string, w: number): number {
   const avail = Math.max(w - 8, 6)
   const px = avail / (Math.max(label.length, 1) * 0.86) // uppercase + letter-spacing runs wide
-  return Math.max(4, Math.min(px, 11))
+  // Cap keeps short titles on wide boxes from ballooning; long titles on narrow rails
+  // still shrink via the width term above (and clip cleanly in CSS if needed).
+  return Math.max(4, Math.min(px, 16))
 }
